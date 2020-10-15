@@ -1,0 +1,54 @@
+worker_processes {{var "WORKER_PROCESSES" | default 1}};
+
+events {
+    worker_connections {{var "WORKER_CONNECTIONS" | default "1024" }};
+}
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+http {
+
+    sendfile on;
+    upstream web-app {
+        server {{ var "BACKEND_HOST" | default "localhost:5000" }};
+    }
+
+    server {
+        listen 80;
+        server_name $hostname;
+        location / {
+            proxy_pass         http://web-app;
+            proxy_redirect     off;
+            proxy_http_version 1.1;
+            proxy_cache_bypass $http_upgrade;
+            proxy_set_header   Upgrade $http_upgrade;
+            proxy_set_header   Connection keep-alive;
+            proxy_set_header   Host $host;
+            proxy_set_header   X-Real-IP $remote_addr;
+            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header   X-Forwarded-Proto $scheme;
+            proxy_set_header   X-Forwarded-Host $server_name;
+        }
+    }
+
+    log_format json  '{'
+                      '"time": "$time_iso8601",'
+                      '"remote_addr": "$remote_addr",'
+                      '"request": "$request",'
+                      '"request_method": "$request_method",'
+                      '"request_length": "$request_length",'
+                      '"request_uri": "$request_uri",'
+                      '"uri": "$uri",'
+                      '"query_string": "$query_string",'
+                      '"status": "$status",'
+                      '"bytes_sent": "$bytes_sent",'
+                      '"body_bytes_sent": "$body_bytes_sent",'
+                      '"referer": "$http_referer",'
+                      '"user_agent": "$http_user_agent",'
+                      '"x_forward_for": "$http_x_forward_for",'
+                      '"request_time": "$request_time",'
+                      '"upstream_response_time": "$upstream_response_time"'
+                      '}';
+    access_log  /var/log/nginx/access.log  json;
+}
+

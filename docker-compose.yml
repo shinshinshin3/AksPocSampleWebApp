@@ -1,0 +1,36 @@
+version: '3.4'
+
+services:
+  app:
+    image: ${DOCKER_REGISTRY-}pocstubappo1
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      dbConnectionString: "Server=db;Database=master;User ID=sa;Password=P@ssw0rd;initial catalog=dotnetsample;MultipleActiveResultSets=True;App=EntityFramework;"
+      ApplicationInsights_InstrumentationKey: "8a86d23f-ecc4-4f0c-a78a-ca6ed18de4cb"
+    depends_on:
+      - db
+  web:
+    build:
+      context: ./nginx-docker
+    environment:
+      BACKEND_HOST: "app:80"
+      WORKER_PROCESSES: "1"
+      WORKER_CONNECTIONS: "1024"
+    ports: 
+      - 80:80
+    depends_on:
+      - app
+  db:
+    build:
+      context: ./mssql-docker
+    environment:
+      MSSQL_PID: "Developer"
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "P@ssw0rd"
+      MSSQL_AGENT_ENABLED: "true"
+    ports:
+      - 1433:1433
+    volumes:
+      - "./mssql-docker/data:/var/opt/mssql"

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <DockerComposeProjectPath>docker-compose.dcproj</DockerComposeProjectPath>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <Folder Include="AzureUtil\" />
+    <Folder Include="Jwt\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.15.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.9" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="mssql-docker\data\log\sqlagent.1" />
+    <None Remove="mssql-docker\data\log\sqlagent.out" />
+    <None Remove="mssql-docker\data\log\errorlog.1" />
+    <None Remove="mssql-docker\data\log\sqlagent.2" />
+    <None Remove="mssql-docker\data\log\errorlog.4" />
+    <None Remove="mssql-docker\data\log\errorlog.3" />
+    <None Remove="mssql-docker\data\log\errorlog.2" />
+  </ItemGroup>
+</Project>

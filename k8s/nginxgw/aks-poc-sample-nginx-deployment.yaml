@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aks-sample-poc  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aks-poc-nginx
+  template:
+    metadata:
+      labels:
+        app: aks-poc-nginx
+    spec:
+      containers:
+      - name: aks-poc-sample-nginx
+        image: funcregistry.azurecr.io/poc_web:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: BACKEND_HOST
+          value:  "aks-poc-service-app-nginxgw:80"
+        - name: WORKER_PROCESSES
+          value: "1"
+        - name: WORKER_CONNECTIONS
+          value: "1024"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aks-poc-service-nginx-nginxgw
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+  selector:
+    app: aks-poc-nginx

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aks-poc-app-appgw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aks-poc-app-appgw
+  template:
+    metadata:
+      labels:
+        app: aks-poc-app-appgw
+    spec:
+      containers:
+      - name: aks-poc-sample-app
+        image: funcregistry.azurecr.io/poc_app:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: dbConnectionString
+          valueFrom:
+            secretKeyRef:
+              name: aks-poc-secret
+              key: dbConnectionString
+        - name: ApplicationInsights_InstrumentationKey
+          valueFrom:
+            secretKeyRef:
+              name: aks-poc-secret
+              key: ApplicationInsights_InstrumentationKey
+        readinessProbe:
+          httpGet:
+            port: 80
+            path: /api/todoItems
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aks-poc-service-app-appgw
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+  selector:
+    app: aks-poc-app-appgw
